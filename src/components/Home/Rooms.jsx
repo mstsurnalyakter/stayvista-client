@@ -10,12 +10,12 @@ const Rooms = () => {
 
   useEffect(() => {
     setLoading(true)
-    fetch(`./rooms.json`)
-      .then(res => res.json())
-      .then(data => {
-        setRooms(data)
-        setLoading(false)
-      })
+    fetch(`http://localhost:8000/rooms`)
+      .then((res) => res.json())
+      .then((data) => {
+        setRooms(data);
+        setLoading(false);
+      });
   }, [])
 
   if (loading) return <LoadingSpinner />
