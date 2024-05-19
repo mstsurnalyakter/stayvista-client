@@ -1,21 +1,22 @@
-import { useEffect, useState } from 'react'
 import Card from './Card'
 import Container from '../Shared/Container'
 import Heading from '../Shared/Heading'
 import LoadingSpinner from '../Shared/LoadingSpinner'
 import {useQuery} from '@tanstack/react-query'
-import { axiosSecure } from '../../hooks/useAxiosSecure'
+import useAxiosCommon from '../../hooks/useAxiosCommon'
+
 
 const Rooms = () => {
+
+ const axiosCommon = useAxiosCommon();
 
   const {data:rooms=[],isLoading,refetch}= useQuery({
     queryKey:["rooms"],
     queryFn:async ()=>{
-      const { data } = await axiosSecure.get('/rooms');
+      const { data } = await axiosCommon.get("/rooms");
       return data
     }
   })
-
 
   if (isLoading) return <LoadingSpinner />
 
