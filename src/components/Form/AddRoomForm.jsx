@@ -1,9 +1,9 @@
 import { categories } from "../Categories/CategoriesData";
 import { DateRange } from "react-date-range";
-const AddRoomForm = ({ handleDates, dates }) => {
+const AddRoomForm = ({ handleDates, dates, handleForm }) => {
   return (
     <div className="w-full min-h-[calc(100vh-40px)] flex flex-col justify-center items-center text-gray-800 rounded-xl bg-gray-50">
-      <form>
+      <form onSubmit={handleForm}>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
           <div className="space-y-6">
             <div className="space-y-1 text-sm">
