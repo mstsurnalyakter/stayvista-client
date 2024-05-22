@@ -2,10 +2,14 @@ import { useState } from "react";
 import AddRoomForm from "../../../components/Form/AddRoomForm";
 import useAuth from "../../../hooks/useAuth";
 import { imageUpload } from "../../../api/utils";
+import toast from "react-hot-toast";
 
 
 const AddRoom = () => {
-  const {user} = useAuth()
+  const {user} = useAuth();
+  const [imagePreview, setImagePreview] = useState();
+  const [imageText, setImageText] = useState("Upload Image");
+
   const [dates, setDates] = useState({
     startDate: new Date(),
     endDate: null,
@@ -26,8 +30,8 @@ const AddRoom = () => {
     const location = form.location.value;
     const category = form.category.value;
     const title = form.title.value;
-    const to = '';
-    const from = '';
+    const to = dates.endDate;
+    const from = dates.startDate;
     const price = form.price.value;
     const guests = form.total_guest.value;
     const bathrooms = form.bathrooms.value;
@@ -41,21 +45,48 @@ const AddRoom = () => {
       email:user?.email
     }
 
-    const imageURL = await imageUpload(image)
-    console.log(imageURL);
+    try {
+       const imageURL = await imageUpload(image);
+
+       const roomData ={
+        location,
+        category,
+        title,
+        to,
+        from,
+        price,
+        guests,
+        bathrooms,
+        bedrooms,
+        host,
+        description,
+        image:imageURL,
+       }
+
+       console.table(roomData);
+
+    } catch (error) {
+        toast.error(error.message)
+    }
 
   }
 
+  // handle image changes
+  const handleImage = image =>{
+    setImagePreview(URL.createObjectURL(image));
+    setImageText(image.name)
+  }
+
   return (
-    <div>
-      <h2>AddRoom page</h2>
-      {/* Form */}
       <AddRoomForm
         handleForm={handleForm}
         dates={dates}
         handleDates={handleDates}
+        setImagePreview={setImagePreview}
+        imagePreview={imagePreview}
+        handleImage={handleImage}
+        imageText={imageText}
       />
-    </div>
   );
 }
 

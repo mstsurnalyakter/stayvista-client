@@ -1,6 +1,15 @@
 import { categories } from "../Categories/CategoriesData";
+import PropTypes from "prop-types";
 import { DateRange } from "react-date-range";
-const AddRoomForm = ({ handleDates, dates, handleForm }) => {
+const AddRoomForm = ({
+  handleDates,
+  dates,
+  handleForm,
+  setImagePreview,
+  imagePreview,
+  imageText,
+  handleImage
+}) => {
   return (
     <div className="w-full min-h-[calc(100vh-40px)] flex flex-col justify-center items-center text-gray-800 rounded-xl bg-gray-50">
       <form onSubmit={handleForm}>
@@ -66,7 +75,7 @@ const AddRoomForm = ({ handleDates, dates, handleForm }) => {
               />
             </div>
 
-            <div className=" p-4 bg-white w-full  m-auto rounded-lg">
+            <div className=" p-4 bg-white w-full  m-auto rounded-lg flex justify-between items-center">
               <div className="file_upload px-5 py-3 relative border-4 border-dotted border-gray-300 rounded-lg">
                 <div className="flex flex-col w-max mx-auto text-center">
                   <label>
@@ -75,14 +84,23 @@ const AddRoomForm = ({ handleDates, dates, handleForm }) => {
                       type="file"
                       name="image"
                       id="image"
+                      onChange={(e) => handleImage(e.target.files[0])}
                       accept="image/*"
                       hidden
                     />
                     <div className="bg-rose-500 text-white border border-gray-300 rounded font-semibold cursor-pointer p-1 px-3 hover:bg-rose-500">
-                      Upload Image
+                      {
+                        imageText.length > 15 ?
+                        imageText.split('.')[0].slice(0,15) + "..." + imageText.split('.')[1]
+                        :
+                        imageText
+                      }
                     </div>
                   </label>
                 </div>
+              </div>
+              <div className="h-16 w-16 object-cover overflow-hidden flex items-center">
+                {imagePreview && <img src={imagePreview} />}
               </div>
             </div>
             <div className="flex justify-between gap-2">
@@ -170,4 +188,7 @@ const AddRoomForm = ({ handleDates, dates, handleForm }) => {
   );
 };
 
+AddRoomForm.propTypes = {
+    imageText: PropTypes.string
+}
 export default AddRoomForm;
