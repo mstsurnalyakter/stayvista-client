@@ -8,26 +8,27 @@ import {
   useMutation,
 } from "@tanstack/react-query";
 import useAxiosSecure from "../../../hooks/useAxiosSecure";
-import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 
 const AddRoom = () => {
 
+  const navigate = useNavigate()
   const axiosSecure = useAxiosSecure();
-
   const {user} = useAuth();
   const [imagePreview, setImagePreview] = useState();
   const [imageText, setImageText] = useState("Upload Image");
+  const [loading, setLoading] = useState(false)
+
 
   const [dates, setDates] = useState({
     startDate: new Date(),
-    endDate: null,
+    endDate: new Date(),
     key: "selection",
   });
 
 //date range handler
   const handleDates =  item =>{
-    console.log(item);
     setDates(item.selection);
   }
 
@@ -37,7 +38,9 @@ const AddRoom = () => {
       return data;
     },
     onSuccess:()=>{
-      toast.success("Data saved successfully");
+      toast.success("Room Added successfully");
+      navigate("/dashboard/my-listings");
+        setLoading(false);
     }
   })
 
@@ -45,6 +48,9 @@ const AddRoom = () => {
   const handleForm = async e => {
 
     e.preventDefault();
+
+    setLoading(true);
+
     const form = e.target;
     const location = form.location.value;
     const category = form.category.value;
@@ -87,12 +93,9 @@ const AddRoom = () => {
        // Post request to server
        await mutateAsync(roomData);
 
-
-
-
-
     } catch (error) {
         toast.error(error.message)
+          setLoading(false);
     }
 
   }
@@ -116,6 +119,7 @@ const AddRoom = () => {
         imagePreview={imagePreview}
         handleImage={handleImage}
         imageText={imageText}
+        loading={loading}
       />
     </>
   );
