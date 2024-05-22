@@ -3,9 +3,18 @@ import AddRoomForm from "../../../components/Form/AddRoomForm";
 import useAuth from "../../../hooks/useAuth";
 import { imageUpload } from "../../../api/utils";
 import toast from "react-hot-toast";
+import { Helmet } from "react-helmet-async";
+import {
+  useMutation,
+} from "@tanstack/react-query";
+import useAxiosSecure from "../../../hooks/useAxiosSecure";
+import axios from "axios";
 
 
 const AddRoom = () => {
+
+  const axiosSecure = useAxiosSecure();
+
   const {user} = useAuth();
   const [imagePreview, setImagePreview] = useState();
   const [imageText, setImageText] = useState("Upload Image");
@@ -21,6 +30,16 @@ const AddRoom = () => {
     console.log(item);
     setDates(item.selection);
   }
+
+  const {mutateAsync} = useMutation({
+    mutationFn:async (roomData)=>{
+      const { data } = await axiosSecure.post("/room", roomData);
+      return data;
+    },
+    onSuccess:()=>{
+      toast.success("Data saved successfully");
+    }
+  })
 
   //form handler
   const handleForm = async e => {
@@ -65,6 +84,13 @@ const AddRoom = () => {
 
        console.table(roomData);
 
+       // Post request to server
+       await mutateAsync(roomData);
+
+
+
+
+
     } catch (error) {
         toast.error(error.message)
     }
@@ -78,6 +104,10 @@ const AddRoom = () => {
   }
 
   return (
+    <>
+      <Helmet>
+        <title>Add Room | Dashboard</title>
+      </Helmet>
       <AddRoomForm
         handleForm={handleForm}
         dates={dates}
@@ -87,6 +117,7 @@ const AddRoom = () => {
         handleImage={handleImage}
         imageText={imageText}
       />
+    </>
   );
 }
 
