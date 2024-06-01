@@ -11,6 +11,9 @@ import useAuth from "../../../hooks/useAuth";
 import { Link } from "react-router-dom";
 import useRole from "../../../hooks/useRole";
 import MenuItem from "./Menu/MenuItem";
+import HostMenu from "./Menu/HostMenu";
+import GuestMenu from "./Menu/GuestMenu";
+import AdminMenu from "./Menu/AdminMenu";
 
 
 const Sidebar = () => {
@@ -89,19 +92,10 @@ const Sidebar = () => {
                 icon={BsGraphUp}
               />
 
-              {/* Add Room */}
-              <MenuItem
-                label="Add Room"
-                address="add-room"
-                icon={BsFillHouseAddFill}
-              />
+              {role === "guest" && <GuestMenu/>}
+              {role === "host" && <HostMenu/>}
+              {role === "admin" && <AdminMenu/>}
 
-              {/* My Listing */}
-              <MenuItem
-                label="My Listings"
-                address="my-listings"
-                icon={MdHomeWork}
-              />
             </nav>
           </div>
         </div>
@@ -115,7 +109,7 @@ const Sidebar = () => {
             address="/dashboard/profile"
             icon={FcSettings}
           />
-   
+
           <button
             onClick={logOut}
             className="flex w-full items-center px-4 py-2 mt-5 text-gray-600 hover:bg-gray-300   hover:text-gray-700 transition-colors duration-300 transform"
