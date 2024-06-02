@@ -1,6 +1,7 @@
 import LoadingSpinner from "../../../components/Shared/LoadingSpinner";
 import useRole from "../../../hooks/useRole";
 import AdminStatistics from "../Admin/AdminStatistics";
+import HostStatistics from "../Host/HostStatistics";
 
 
 const Statistics = () => {
@@ -13,6 +14,10 @@ const Statistics = () => {
      {
       role === 'admin' && <AdminStatistics/>
      }
+     {
+      role === 'host' && <HostStatistics/>
+     }
+    
     </>
   );
 }
