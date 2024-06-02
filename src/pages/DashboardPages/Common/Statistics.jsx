@@ -19,7 +19,7 @@ const Statistics = () => {
       role === 'host' && <HostStatistics/>
      }
      {
-      role === 'gust' && <GuestStatistics/>
+      role === 'guest' && <GuestStatistics/>
      }
 
     </>
