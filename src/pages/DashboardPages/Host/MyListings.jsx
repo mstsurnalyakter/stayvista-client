@@ -8,7 +8,7 @@ import toast from "react-hot-toast";
 
 const MyListings = () => {
 const axiosSecure = useAxiosSecure();
-const {user} = useAuth()
+const {user,loading} = useAuth()
 
 // fetch Roms Data
 
@@ -17,7 +17,8 @@ const {user} = useAuth()
     isLoading,
     refetch,
   } = useQuery({
-    queryKey: ["/my-listings", user?.email],
+    queryKey: ["my-listings", user?.email],
+    enabled: !loading && !!user?.email,
     queryFn: async () => {
       const { data } = await axiosSecure.get(`/my-listings/${user?.email}`);
       return data;
