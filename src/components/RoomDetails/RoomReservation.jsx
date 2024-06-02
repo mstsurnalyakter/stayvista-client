@@ -7,34 +7,28 @@ import BookingModal from '../Modal/BookingModal';
 import useAuth from '../../hooks/useAuth';
 import LoadingSpinner from '../Shared/LoadingSpinner';
 
-const RoomReservation = ({ room }) => {
+const RoomReservation = ({ room, refetch }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const { user, loading } = useAuth();
 
-  const [isOpen,setIsOpen] = useState(false);
-  const {user,loading} = useAuth()
+  const [state, setState] = useState([
+    {
+      startDate: new Date(room.from),
+      endDate: new Date(room.to),
+      key: "selection",
+    },
+  ]);
 
-    const [state, setState] = useState([
-      {
-        startDate: new Date(room.from),
-        endDate: new Date(room.to),
-        key: "selection",
-      },
-    ]);
+  const closeModal = () => {
+    setIsOpen(false);
+  };
 
-    const closeModal = () =>{
-      setIsOpen(false)
-    }
+  // total days * price
+  const totalPrice =
+    parseInt(differenceInCalendarDays(new Date(room.to), new Date(room.from))) *
+    parseFloat(room?.price);
 
-
-    // total days * price
-    const totalPrice = parseInt(
-      differenceInCalendarDays(
-        new Date(room.to),
-        new Date(room.from)
-      )
-    )  * parseFloat(room?.price)
-
-    if(loading) return <LoadingSpinner/>
-
+  if (loading) return <LoadingSpinner />;
 
   return (
     <div className="rounded-xl border-[1px] border-neutral-200 overflow-hidden bg-white">
@@ -63,12 +57,17 @@ const RoomReservation = ({ room }) => {
       </div>
       <hr />
       <div className="p-4">
-        <Button onClick={() => setIsOpen(true)} label={"Reserve"} />
+        <Button
+          disabled={room?.booked === true}
+          onClick={() => setIsOpen(true)}
+          label={"Reserve"}
+        />
       </div>
       {/* modal */}
       <BookingModal
         isOpen={isOpen}
         closeModal={closeModal}
+        refetch={refetch}
         bookingInfo={{
           ...room,
           price: totalPrice,
@@ -82,7 +81,7 @@ const RoomReservation = ({ room }) => {
       </div>
     </div>
   );
-}
+};
 
 RoomReservation.propTypes = {
   room: PropTypes.object,

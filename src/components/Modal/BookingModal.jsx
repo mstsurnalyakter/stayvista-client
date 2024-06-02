@@ -15,7 +15,7 @@ const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
 import { Elements } from "@stripe/react-stripe-js";
 import CheckoutForm from "../Form/CheckoutForm";
 
-const BookingModal = ({ closeModal, isOpen, bookingInfo }) => {
+const BookingModal = ({ closeModal, isOpen, bookingInfo, refetch }) => {
   return (
     <Transition appear show={isOpen} as={Fragment}>
       <Dialog as="div" className="relative z-10" onClose={closeModal}>
@@ -83,6 +83,7 @@ const BookingModal = ({ closeModal, isOpen, bookingInfo }) => {
                   <CheckoutForm
                     bookingInfo={bookingInfo}
                     closeModal={closeModal}
+                    refetch={refetch}
                   />
                 </Elements>
                 {/* <div className="flex mt-2 justify-around">
@@ -112,6 +113,7 @@ const BookingModal = ({ closeModal, isOpen, bookingInfo }) => {
 BookingModal.propTypes = {
   bookingInfo: PropTypes.object,
   closeModal: PropTypes.func,
+  refetch: PropTypes.func,
   isOpen: PropTypes.bool,
 };
 

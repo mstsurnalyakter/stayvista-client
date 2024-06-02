@@ -6,17 +6,20 @@ import { useEffect, useState } from "react";
 import useAxiosSecure from "../../hooks/useAxiosSecure";
 import useAuth from "../../hooks/useAuth";
 import {ImSpinner9} from 'react-icons/im';
+import { useNavigate } from "react-router-dom";
+import toast from 'react-hot-toast'
 
 
 
-const CheckoutForm = ({ closeModal, bookingInfo }) => {
+const CheckoutForm = ({ closeModal, bookingInfo, refetch }) => {
   const stripe = useStripe();
-  const axiosSecure = useAxiosSecure()
+  const axiosSecure = useAxiosSecure();
   const elements = useElements();
   const [clientSecret, setClientSecret] = useState();
-  const [cardError,setCardError] = useState("");
-  const [processing,setProcessing] = useState(false);
-  const {user} = useAuth();
+  const [cardError, setCardError] = useState("");
+  const [processing, setProcessing] = useState(false);
+  const { user } = useAuth();
+  const navigate = useNavigate()
 
   useEffect(() => {
     //fetch client secret
@@ -26,19 +29,16 @@ const CheckoutForm = ({ closeModal, bookingInfo }) => {
   }, [bookingInfo?.price]);
 
   // get client secret
-  const getClientSecret = async price =>{
-    const { data } = await axiosSecure.post("/create-payment-intent",price);
-   console.log("client secret from server",data);
-   setClientSecret(data.clientSecret)
-  }
-
-
+  const getClientSecret = async (price) => {
+    const { data } = await axiosSecure.post("/create-payment-intent", price);
+    console.log("client secret from server", data);
+    setClientSecret(data.clientSecret);
+  };
 
   const handleSubmit = async (event) => {
     // Block native form submission.
     event.preventDefault();
-    setProcessing(true)
-
+    setProcessing(true);
 
     if (!stripe || !elements) {
       // Stripe.js has not loaded yet. Make sure to disable
@@ -64,42 +64,58 @@ const CheckoutForm = ({ closeModal, bookingInfo }) => {
     if (error) {
       console.log("[error]", error);
       setCardError(error.message);
-      setProcessing(false)
+      setProcessing(false);
       return;
     } else {
       console.log("[PaymentMethod]", paymentMethod);
-      setCardError("")
+      setCardError("");
     }
     //confirm payment
-   const {error:confirmError,paymentIntent} = await stripe.confirmCardPayment(clientSecret, {
-     payment_method: {
-       card: card,
-       billing_details: {
-         email: user?.email,
-         name: user?.displayName,
-       },
-     },
-   });
-   if (confirmError) {
-    console.log(confirmError);
-    setCardError(confirmError.message);
-    setProcessing(false)
-    return
-   }
-   if (paymentIntent.status === 'succeeded') {
-    console.log(paymentIntent);
-    //1. create payment info object
-    const paymentInfo = {
-        ...bookingInfo,
-        transactionId:paymentIntent.id,
-        date: new Date()
+    const { error: confirmError, paymentIntent } =
+      await stripe.confirmCardPayment(clientSecret, {
+        payment_method: {
+          card: card,
+          billing_details: {
+            email: user?.email,
+            name: user?.displayName,
+          },
+        },
+      });
+    if (confirmError) {
+      console.log(confirmError);
+      setCardError(confirmError.message);
+      setProcessing(false);
+      return;
     }
-    console.log(paymentInfo);
-    //2. save payment info in booking collection db
-    // 3. change room status to booked in db
-    setProcessing(false)
-   }
+    if (paymentIntent.status === "succeeded") {
+      console.log(paymentIntent);
+      //1. create payment info object
+      const paymentInfo = {
+        ...bookingInfo,
+        roomId: bookingInfo?._id,
+        transactionId: paymentIntent?.id,
+        date: new Date(),
+      };
+      delete paymentInfo?._id;
+      console.log(paymentInfo);
+      try {
+        //2. save payment info in booking collection db
+        const { data } = await axiosSecure.post("/booking", paymentInfo);
+        console.log(data);
+        // 3. change room status to booked in db
 
+        //update ui
+        refetch()
+        closeModal();
+        toast.success("Room Booked successfully.")
+
+        navigate("/dashboard/my-bookings")
+      } catch (error) {
+        console.log(error);
+      }
+
+      setProcessing(false);
+    }
   };
 
   return (
@@ -150,7 +166,8 @@ const CheckoutForm = ({ closeModal, bookingInfo }) => {
 
 CheckoutForm.propTypes = {
   bookingInfo: PropTypes.object,
-  closeModal:PropTypes.func,
+  closeModal: PropTypes.func,
+  refetch: PropTypes.func,
 };
 
 export default CheckoutForm;
